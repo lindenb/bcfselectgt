@@ -51,7 +51,6 @@ static int eval_variant(IntArrayPtr gts,NodePtr node) {
 		case 2:
 			return eval_variant(gts,node->left)==1 || eval_variant(gts,node->right)==1;
 		case 3:
-			DEBUG("####negate of %d\n",eval_variant(gts,node->left));
 			return eval_variant(gts,node->left)!=1;
 		default: ERROR("bad state"); abort(); break;
 		}
@@ -104,10 +103,10 @@ void IntArrayFree(IntArrayPtr ptr) {
 
 static void usage(const char* name,FILE* out) {
     fprintf(out,"%s: Compiled %s %s. Pierre Lindenbaum\n",name,__DATE__,__TIME__);
-    fprintf(out,"Usage: %s [ -O (o|v|z) ] [-o fileout] -d <distance> (stdin|bcf)\n",name);
+    fprintf(out,"Usage: %s [ -O (o|v|z) ] [-o fileout] -e <expression> (stdin|bcf)\n",name);
     fprintf(out,"Options:\n");
     fprintf(out,"  -h print help\n");
-    fprintf(out,"  -d (int) distance\n");
+    fprintf(out,"  -e (string) expression. See manual. Required.\n");
     fprintf(out,"  -o (file) output file (default stdout)\n");
     fprintf(out,"  -O (char) output format z:gzip vcf v:vcf b:bcf (default v)\n");
     fprintf(out,"\n");

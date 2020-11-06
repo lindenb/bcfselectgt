@@ -9,11 +9,16 @@ test: bcfselectgt rotavirus_rf.vcf.gz
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S1" != HET' $(word 2,$^)
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '[ "S1" "S2"] != HET' $(word 2,$^)
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '[ "S1" "S2"] != HET|HOM_VAR' $(word 2,$^)
-	echo -e "S1\nS2\nS3" > test.samples
+	echo  "S1,S2,S3" | tr "," "\n" > test.samples
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '@test.samples == HOM_REF' $(word 2,$^)
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '^ @test.samples == HOM_REF' $(word 2,$^)
 	rm test.samples
-
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S3" == HET && "S4" == HET' $(word 2,$^)
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S3" == HET || "S4" == HET' $(word 2,$^)
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '!("S3" == HET || "S4" == HET)' $(word 2,$^)
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '/^S[12]$$/ == HOM_REF' $(word 2,$^)
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '^ /^S[12]$$/ == HOM_REF' $(word 2,$^)
+	
 bcfselectgt: selgt_main.o selgt.tab.o lex.yy.o 
 	$(CC) -o $@ $(LDFLAGS) $^  -lhts
 
@@ -34,7 +39,7 @@ lex.yy.c: selgt.l selgt.h selgt.tab.h
 selgt.tab.h: selgt.tab.c
 
 selgt.tab.c :selgt.y selgt.h
-	bison --verbose --report-file=bison.report.txt --output=$@ -d $<
+	bison --xml=bison.xml --verbose --report-file=bison.report.txt --output=$@ -d $<
 
 clean:
 	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt test.samples
