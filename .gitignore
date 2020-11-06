@@ -50,3 +50,16 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+*~
+bison.report.txt	
+jeter*
+lex.yy.*
+selgt.output
+selgt.tab.c
+selgt.tab.h
+selgt.c
+bison.output
+bison.report.txt
+selgt
+
