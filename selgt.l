@@ -6,7 +6,8 @@
 
 %option noyywrap
 %option caseless
-
+%option nounput
+%option noinput
 %%
 
 == return LEX_EQ;

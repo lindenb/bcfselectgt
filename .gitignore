@@ -61,5 +61,4 @@ selgt.tab.h
 selgt.c
 bison.output
 bison.report.txt
-selgt
-
+bcfselectgt

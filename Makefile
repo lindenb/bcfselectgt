@@ -1,9 +1,9 @@
 HTSLIB=${HOME}/src/htslib
 CC?=gcc
-CFLAGS= -g -c -I$(HTSLIB) -Wall
+CFLAGS= -Wall -c -I$(HTSLIB) -Wall
 LDFLAGS= -L$(HTSLIB) 
 
-selgt: selgt_main.o selgt.tab.o lex.yy.o 
+bcfselectgt: selgt_main.o selgt.tab.o lex.yy.o 
 	$(CC) -o $@ $(LDFLAGS) $^  -lhts
 
 selgt_main.o: selgt_main.c selgt.tab.h selgt.h lex.yy.h
@@ -25,4 +25,6 @@ selgt.tab.h: selgt.tab.c
 selgt.tab.c :selgt.y selgt.h
 	bison --verbose --report-file=bison.report.txt --output=$@ -d $<
 
+clean:
+	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt
 
