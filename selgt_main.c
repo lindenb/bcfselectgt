@@ -106,6 +106,7 @@ static void usage(const char* name,FILE* out) {
     fprintf(out,"Usage: %s [ -O (o|v|z) ] [-o fileout] -e <expression> (stdin|bcf)\n",name);
     fprintf(out,"Options:\n");
     fprintf(out,"  -h print help\n");
+    fprintf(out,"  -f (string) soft FILTER name.\n");
     fprintf(out,"  -e (string) expression. See manual. Required.\n");
     fprintf(out,"  -o (file) output file (default stdout)\n");
     fprintf(out,"  -O (char) output format z:gzip vcf v:vcf b:bcf (default v)\n");
@@ -116,12 +117,17 @@ int main(int argc,char** argv) {
  int c;
  int ret=0;
  int i;
+ int filter_id=-1;
+ char* filter=NULL;
  char* fileout=NULL;
  char format[3]={'v','w',0};
  char* user_expr_str = NULL;
- while ((c = getopt (argc, argv, "o:O:e:h")) != -1)
+ while ((c = getopt (argc, argv, "o:O:e:f:h")) != -1)
     switch (c)
       {
+      case 'f': filter=optarg; 
+      	if(strlen(filter)==0) ERROR("empty filter name");
+      	break;
       case 'O':
             if(strlen(optarg)!=1) {
                 usage(argv[0],stderr);
@@ -189,6 +195,14 @@ ksprintf(&xheader, "##gtselect.command=%s\n",user_expr_str);
 bcf_hdr_append(header, xheader.s);
 free(xheader.s);
 
+if(filter!=NULL) {
+	if( bcf_hdr_id2int(header, BCF_DT_ID, filter) >=0 ) {
+		ERROR("##FILTER=%s already defined in header.",filter);
+		}
+	bcf_hdr_printf(header, "##FILTER=<ID=%s,Description=\"filtered with %s>", filter,argv[0]);
+    filter_id = bcf_hdr_id2int(header, BCF_DT_ID, filter);
+    assert( filter_id >=0);
+	}
 if ( bcf_hdr_write(out, header)!=0 ) {
     ERROR("Cannot write header.");
     return EXIT_FAILURE;      
@@ -224,8 +238,15 @@ while((ret=bcf_read(in, header, bcf))==0) {
 		int type = bcf_gt_type(gt_fmt,i,NULL,NULL);
 		genotype_types->data[i]=type;
 		}
+	int keep =  eval_variant(genotype_types,g_node);
 	
-    if(eval_variant(genotype_types,g_node)==0) continue;
+	
+	
+	if(keep==0) {
+		if(filter==NULL) continue;
+		 bcf_add_filter(header,bcf,filter_id);
+		}
+	
     if(bcf_write1(out, header, bcf)!=0) {
         ERROR("IO error. Cannot write record.");
         return EXIT_FAILURE;
