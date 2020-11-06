@@ -1,7 +1,18 @@
-HTSLIB=${HOME}/src/htslib
+HTSLIB?=../htslib
 CC?=gcc
 CFLAGS= -Wall -c -I$(HTSLIB) -Wall
 LDFLAGS= -L$(HTSLIB) 
+.PHONY=test
+
+test: bcfselectgt rotavirus_rf.vcf.gz
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S1" == HET' $(word 2,$^)
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S1" != HET' $(word 2,$^)
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '[ "S1" "S2"] != HET' $(word 2,$^)
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '[ "S1" "S2"] != HET|HOM_VAR' $(word 2,$^)
+	echo -e "S1\nS2\nS3" > test.samples
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '@test.samples == HOM_REF' $(word 2,$^)
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '^ @test.samples == HOM_REF' $(word 2,$^)
+	rm test.samples
 
 bcfselectgt: selgt_main.o selgt.tab.o lex.yy.o 
 	$(CC) -o $@ $(LDFLAGS) $^  -lhts
@@ -26,5 +37,5 @@ selgt.tab.c :selgt.y selgt.h
 	bison --verbose --report-file=bison.report.txt --output=$@ -d $<
 
 clean:
-	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt
+	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt test.samples
 

@@ -40,7 +40,6 @@ static int eval_variant(IntArrayPtr gts,NodePtr node) {
 							}
 						}
 					if (j==node->check->gtypes->size) {
-						DEBUG("FAIL didn't got sample idx:%d GT=%d",sample_index,sample_gt);
 						return 0;
 						}
 					}
@@ -83,12 +82,16 @@ IntArrayPtr IntArrayAdd(IntArrayPtr ptr,int sample_idx) {
 	return ptr;
 	}
 
-
-IntArrayPtr IntArrayInsert(IntArrayPtr ptr,int sample_idx) {
+int IntArrayContains(IntArrayPtr ptr,int sample_idx) {
 	int i;
 	for(i=0;i< ptr->size ; i++) {
-		if(ptr->data[i] == sample_idx) return ptr;
+		if(ptr->data[i] == sample_idx) return 1;
 		}
+	return 0;
+	}
+
+IntArrayPtr IntArrayInsert(IntArrayPtr ptr,int sample_idx) {
+	if(IntArrayContains(ptr,sample_idx)==1) return ptr;
 	return IntArrayAdd(ptr,sample_idx);
 	}
 

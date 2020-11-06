@@ -30,8 +30,8 @@ NOT|\! return LEX_NOT;
 \"[^\"]+\" yylval.str= strndup(&yytext[1],yyleng-2); return LEX_STRING;
 \( return '(';
 \) return ')';
-\] return '[';
-\[ return ']';
+\] return ']';
+\[ return '[';
 \| return '|';
 [ \t\n] ;
 .	{

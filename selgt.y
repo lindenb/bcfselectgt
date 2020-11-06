@@ -10,8 +10,7 @@ extern NodePtr g_node;
 
 
 void yyerror (char const *s) {
-   fprintf (stderr, "[ERROR][scanner]%s.\n", s);
-   abort();
+   ERROR("[scanner]%s.\n", s);
  }
 
 
@@ -141,11 +140,12 @@ sample_set: sample_index {
 			}
 		IntArrayFree($3);
 		}
-	} | LEX_FILENAME {
+	} | opt_caret LEX_FILENAME {
+	int negate=$1;
 	char line[1024];
-	FILE* f=fopen($1,"r");
+	FILE* f=fopen($2,"r");
 	if(f==NULL) {
-		ERROR("Cannot open \"%s\" (%s)",$1,strerror(errno));
+		ERROR("Cannot open \"%s\" (%s)",$2,strerror(errno));
 		}
 	$$ =IntArrayNew();
 	while(fgets(line,1024,f)!=NULL) {
@@ -154,23 +154,34 @@ sample_set: sample_index {
 		if(line[l-1]=='\n') line[l-1]=0;
 		int idx = bcf_hdr_id2int(g_header,BCF_DT_SAMPLE,line);
 		if ( idx < 0 ) {
-			WARNING("file \"%s\" : undefined  sample \"%s\" in vcf. SKIPPING.\n",$1,line);
+			WARNING("file \"%s\" : undefined  sample \"%s\" in vcf. SKIPPING.\n",$2,line);
 			continue;
 			}
 		IntArrayInsert($$,idx);
 		}
 	fclose(f);
-	if($$->size==0) {
-		ERROR("file \"%s\" : no valid  sample found in vcf .\n",line);
+	if(negate==1) {
+		int i;
+		IntArrayPtr array = IntArrayNew();
+		for(i=0;i< (int)bcf_hdr_nsamples(g_header);i++) {
+			if( IntArrayContains($$,i) ) continue;
+                        IntArrayInsert(array,i);        
+                        }
+		IntArrayFree($$);
+		$$=array;
 		}
-	free($1);
+
+	if($$->size==0) {
+		ERROR("file \"%s\" : no valid  sample found in vcf (negate flag=%d).",line,negate);
+		}
+	free($2);
 	
 	};
 
 sample_items: sample_index {
 	$$ = IntArrayInsert(IntArrayNew(),$1);
-	} | sample_items ',' sample_index {
-	$$ = IntArrayInsert($1,$3);
+	} | sample_items  sample_index {
+	$$ = IntArrayInsert($1,$2);
 	}
 
 
