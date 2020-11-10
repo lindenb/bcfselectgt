@@ -29,25 +29,30 @@ void yyerror (char const *s) {
     CheckGtPtr checkGt;
     NodePtr node;
 	int d;
+	float f;
 	};
 
 %token<d> LEX_GT_TYPE LEX_COLUMN_INDEX
 %token<str> LEX_FILENAME
 %token LEX_EQ
 %token LEX_NE
+%token LEX_GT LEX_GE LEX_LT LEX_LE
 %token LEX_NO_CALL
-%token LEX_IS
 %token LEX_AND
 %token LEX_OR
 %token LEX_NOT
 %token LEX_CARET
+%token LEX_STAR
+%token<d> LEX_INT
+%token<f> LEX_FLOAT
 %token<str> LEX_STRING LEX_REGEX
+
 %type<sample_idx> sample_index
 %type<sample_indexes>  sample_items sample_set
 %type<gt_types>  gt_type_set
-%type<checkGt> sample_check
+%type<checkGt> sample_check0 sample_check
 %type<node> boolean_expr and_expr or_expr
-%type<d> opt_caret not_flag gt_type
+%type<d> opt_caret gt_type eqorne cmpop samplecount
 
 %left LEX_AND
 %left LEX_NOT
@@ -63,14 +68,14 @@ and_expr: or_expr {$$=$1;} | and_expr  LEX_AND  or_expr {
 	assert($1!=NULL);
 	assert($3!=NULL);
 	$$ = NodeNew();
-	$$->type = 1;
+	$$->type = NODE_TYPE_AND;
 	$$->left = $1;
 	$$->right = $3;
 	} | '(' and_expr ')' {
 	$$ = $2;
 	}  | LEX_NOT and_expr {
 	$$ = NodeNew();
-	$$->type = 3;
+	$$->type = NODE_TYPE_NOT;
 	$$->left = $2;
 	};
 
@@ -79,42 +84,58 @@ or_expr: boolean_expr {$$=$1;} | or_expr  LEX_OR boolean_expr {
 	assert($1!=NULL);
 	assert($3!=NULL);
 	$$ = NodeNew();
-	$$->type = 2;
+	$$->type = NODE_TYPE_OR;
 	$$->left = $1;
 	$$->right = $3;
 	};
 
 boolean_expr: sample_check {
 	$$ = NodeNew();
-	$$->type = 0;
+	$$->type = NODE_TYPE_COMPARE;
 	$$->check = $1;
 	};
 
+sample_check: sample_check0 {
+	$$ = $1;
+	$1->cmp_operator = LEX_EQ;
+	$1->expect_n_samples = $$->samples->size;
+	} | sample_check0 cmpop samplecount {
+	$$ = $1;
+	$1->cmp_operator = $2;
+	$1->expect_n_samples = $3;
+	if($3<0) {
+		ERROR("Sample count cannot be lower than 0 (%d)",$3);
+		}
+	if($3>(int)bcf_hdr_nsamples(g_header)) {
+		ERROR("Sample count (%d)cannot be greater than the number of samples in the vcf (%d) ",
+			$3,(int)bcf_hdr_nsamples(g_header));
+		}
+	};
 
-
-sample_check : sample_set LEX_IS not_flag gt_type_set {
-	$$ =(CheckGtPtr)malloc(sizeof(CheckGt));
-	if($$==NULL) ERROR("out of memory");
-	$$->negate = $3;
-	$$->samples = $1;
-	$$->gtypes = $4;
-	} | sample_set LEX_EQ gt_type_set {
-	$$ =(CheckGtPtr)malloc(sizeof(CheckGt));
-	if($$==NULL) ERROR("out of memory");
-	$$->negate = 0;
-	$$->samples = $1;
-	$$->gtypes = $3;
-	} | sample_set LEX_NE gt_type_set {
-	$$ =(CheckGtPtr)malloc(sizeof(CheckGt));
-	if($$==NULL) ERROR("out of memory");
-	$$->negate = 1;
+sample_check0 : sample_set eqorne gt_type_set {
+	$$ = CheckGtNew();
+	$$->negate = ($2==LEX_EQ?0:1);
 	$$->samples = $1;
 	$$->gtypes = $3;
 	};
 
+samplecount: LEX_INT {$$=$1;}|
+	LEX_FLOAT {
+	if($1<0.0 || $1>1.0) ERROR("Bad fraction of samples value 0<=%f<=1.0.",$1);
+	$$=(int)($1*((int)bcf_hdr_nsamples(g_header)));
+	}
+	;
+
+cmpop: eqorne {$$=$1;} | 
+	LEX_LT {$$=LEX_LT;}|
+	LEX_GT {$$=LEX_GT;}|
+	LEX_GE {$$=LEX_GE;}|
+	LEX_LE {$$=LEX_LE;};
 
 
-not_flag:  {$$=0;} | LEX_NOT {$$=1;};
+eqorne:LEX_EQ {$$=LEX_EQ;} | LEX_NE {$$=LEX_NE;};
+
+
 
 gt_type_set:gt_type {
     $$ = IntArrayInsert(IntArrayNew(),$1);
@@ -195,11 +216,17 @@ sample_set: sample_index {
 		}
 	regfree(&regex);
 	
-	if(array->size==0) {
+	if(IntArraySize(array)==0) {
 		ERROR("regex \"%s\" : no valid  sample found in vcf (negate flag=%d).",$2,negate);
 		}
 	free($2);
 	$$=array;
+	} | LEX_STAR {
+	int i;
+	$$ = IntArrayNew();
+	for(i=0;i< (int)bcf_hdr_nsamples(g_header);i++) {
+		IntArrayInsert($$,i); 
+		}
 	};
 
 sample_items: sample_index {

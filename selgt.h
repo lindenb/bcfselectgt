@@ -23,12 +23,18 @@ IntArrayPtr IntArrayAdd(IntArrayPtr ptr,int sample_idx);
 int IntArrayContains(IntArrayPtr ptr,int sample_idx);
 IntArrayPtr IntArrayNew();
 void IntArrayFree(IntArrayPtr ptr);
+#define IntArraySize(ptr) ((ptr)->size)
+#define IntArrayAt(ptr,idx) ((ptr)->data[idx])
 
 typedef struct checkgt_t {
 	int negate;
+	int cmp_operator;
+	int expect_n_samples;
 	IntArrayPtr samples;
 	IntArrayPtr gtypes;
 	} CheckGt,*CheckGtPtr;
+
+CheckGtPtr CheckGtNew();
 
 typedef struct node_t {
 	int type;
@@ -37,7 +43,11 @@ typedef struct node_t {
 	CheckGtPtr check;
 	} Node,*NodePtr;
 
+
 NodePtr NodeNew();
 
-
+#define NODE_TYPE_COMPARE 0
+#define NODE_TYPE_AND 1
+#define NODE_TYPE_OR 2
+#define NODE_TYPE_NOT 3
 #endif

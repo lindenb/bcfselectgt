@@ -1,6 +1,6 @@
 HTSLIB?=../htslib
 CC?=gcc
-CFLAGS= -Wall -c -I$(HTSLIB) -Wall
+CFLAGS= -O2 -Wall -c -I$(HTSLIB) -Wall
 LDFLAGS= -L$(HTSLIB) 
 .PHONY=test
 
@@ -44,5 +44,5 @@ test: bcfselectgt rotavirus_rf.vcf.gz
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '^ /^S[12]$$/ == HOM_REF' $(word 2,$^)
 
 clean:
-	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt test.samples
+	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt test.samples bison.xml bison.report.txt 
 

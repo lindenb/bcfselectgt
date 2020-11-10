@@ -1,6 +1,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include "selgt.h"
+#include "selgt.tab.h"
 #include "lex.yy.h"
 
 extern int yyparse();
@@ -8,55 +9,55 @@ extern int yyparse();
 NodePtr g_node = NULL;
 bcf_hdr_t *g_header;
 
+static int int_compare(int a, int op,int b) {
+	switch(op) {
+		case LEX_EQ : return a==b;
+		case LEX_NE : return a!=b;
+		case LEX_LT : return a < b;
+		case LEX_LE : return a <= b;
+		case LEX_GE : return a>=b;
+		case LEX_GT : return a>b;
+		default: ERROR("Illegal state %d",op);
+		}
+	}
+
 static int eval_variant(IntArrayPtr gts,NodePtr node) {
-	int i,j;
+	int i;
+	int matching=0;
 	assert(gts!=NULL);
 	assert(node!=NULL);
 	switch(node->type) {
-		case 0:
-			if(node->check->negate==1) {
-				for(i=0; i< node->check->samples->size;i++) {
-					int sample_index=  node->check->samples->data[i];
-					int sample_gt= gts->data[ sample_index];
-					for(j=0;j< node->check->gtypes->size;j++) {
-						if( sample_gt == node->check->gtypes->data[j]) {
-							break;
-							}
+		case NODE_TYPE_COMPARE:
+				for(i=0; i< IntArraySize(node->check->samples);i++) {
+					int sample_index=  IntArrayAt(node->check->samples,i);
+					int sample_gt= IntArrayAt(gts,sample_index);
+					int found = IntArrayContains(node->check->gtypes,sample_gt);
+					
+					if(node->check->negate && !found) {
+						matching++;	
 						}
-					if (j!=node->check->gtypes->size) {
-						return 0;
-						}
-					}
-				return 1;
-				}
-			else
-				{
-				for(i=0; i< node->check->samples->size;i++) {
-					int sample_index=  node->check->samples->data[i];
-					int sample_gt= gts->data[ sample_index];
-					for(j=0;j< node->check->gtypes->size;j++) {
-						if( sample_gt == node->check->gtypes->data[j]) {
-							break;
-							}
-						}
-					if (j==node->check->gtypes->size) {
-						return 0;
+					else if(!node->check->negate && found) {
+						matching++;	
 						}
 					}
-				return 1;
-				}
-			
-		case 1:
-			return eval_variant(gts,node->left)==1 && eval_variant(gts,node->right)==1;
-		case 2:
-			return eval_variant(gts,node->left)==1 || eval_variant(gts,node->right)==1;
-		case 3:
-			return eval_variant(gts,node->left)!=1;
+			return int_compare(matching, node->check->cmp_operator,node->check->expect_n_samples);
+		case NODE_TYPE_AND:
+			return eval_variant(gts,node->left) && eval_variant(gts,node->right);
+		case NODE_TYPE_OR:
+			return eval_variant(gts,node->left) || eval_variant(gts,node->right);
+		case NODE_TYPE_NOT:
+			return !eval_variant(gts,node->left);
 		default: ERROR("bad state"); abort(); break;
 		}
 	return 0;
 	}
 
+CheckGtPtr CheckGtNew() {
+	CheckGtPtr ptr = (CheckGtPtr)malloc(sizeof(CheckGt));
+	if(ptr==NULL) ERROR("out of memory");
+	memset((void*)ptr,0,sizeof(CheckGt));
+	return ptr;
+	}
 
 NodePtr NodeNew() {
 	NodePtr ptr = (NodePtr)malloc(sizeof(Node));

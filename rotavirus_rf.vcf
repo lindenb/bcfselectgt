@@ -1,0 +1,64 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##contig=<ID=RF01,length=3302>
+##contig=<ID=RF02,length=2687>
+##contig=<ID=RF03,length=2592>
+##contig=<ID=RF04,length=2362>
+##contig=<ID=RF05,length=1579>
+##contig=<ID=RF06,length=1356>
+##contig=<ID=RF07,length=1074>
+##contig=<ID=RF08,length=1059>
+##contig=<ID=RF09,length=1062>
+##contig=<ID=RF10,length=751>
+##contig=<ID=RF11,length=666>
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##bcftools_viewVersion=1.10-6-g2782d9f+htslib-1.2.1-1336-g7c16b56-dirty
+##bcftools_viewCommand=view -O z -o rotavirus_rf.vcf.gz jeter.vcf; Date=Fri Nov  6 16:08:31 2020
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	S1	S2	S3	S4	S5
+RF01	970	.	A	C	.	.	.	GT	0/0	0/0	0/0	0/0	1/1
+RF02	251	.	A	T	.	.	.	GT	0/0	0/1	0/1	0/0	0/0
+RF02	578	.	G	A	.	.	.	GT	0/0	0/0	0/0	1/1	0/0
+RF02	877	.	T	A	.	.	.	GT	0/1	0/0	0/0	0/0	0/0
+RF02	1726	.	T	G	.	.	.	GT	0/0	0/1	0/1	0/0	0/0
+RF02	1962	.	TACA	TA	.	.	.	GT	0/1	0/0	0/0	0/0	0/0
+RF03	1221	.	C	G	.	.	.	GT	0/0	1/1	1/1	0/0	0/0
+RF03	1242	.	C	A	.	.	.	GT	0/0	0/0	0/0	1/1	0/0
+RF03	1688	.	T	G	.	.	.	GT	0/0	0/0	0/0	0/0	1/1
+RF03	1708	.	G	T	.	.	.	GT	0/0	0/0	0/0	0/0	1/1
+RF03	2150	.	T	A	.	.	.	GT	0/1	0/0	0/0	0/0	0/0
+RF03	2201	.	G	C	.	.	.	GT	0/0	0/1	0/1	0/0	0/0
+RF03	2315	.	G	C	.	.	.	GT	0/0	0/1	0/1	0/1	0/0
+RF03	2573	.	A	G	.	.	.	GT	0/0	1/1	1/1	0/0	0/0
+RF04	887	.	A	G	.	.	.	GT	0/1	0/0	0/0	0/0	0/0
+RF04	991	.	T	C	.	.	.	GT	0/0	0/0	0/0	0/1	0/0
+RF04	1241	.	T	G	.	.	.	GT	0/0	0/0	0/0	1/1	0/0
+RF04	1259	.	ATTT	ATT	.	.	.	GT	0/0	0/0	0/0	0/1	0/0
+RF04	1857	.	CAGA	CA	.	.	.	GT	0/1	0/0	0/0	0/0	0/0
+RF04	1900	.	A	C	.	.	.	GT	0/0	0/0	0/0	0/0	1/1
+RF04	1920	.	A	T	.	.	.	GT	1/1	0/0	0/0	0/0	0/0
+RF05	41	.	T	C	.	.	.	GT	0/0	0/0	0/0	1/1	0/0
+RF05	499	.	A	T	.	.	.	GT	0/0	1/1	1/1	0/0	0/0
+RF05	795	.	A	C	.	.	.	GT	0/0	0/0	0/0	0/1	0/0
+RF05	879	.	C	A	.	.	.	GT	0/0	1/1	1/1	0/0	0/0
+RF05	1297	.	T	G	.	.	.	GT	0/0	1/1	1/1	0/0	0/0
+RF05	1339	.	A	C	.	.	.	GT	0/0	0/1	0/1	0/0	0/0
+RF06	517	.	C	A	.	.	.	GT	0/1	0/0	0/0	0/0	0/0
+RF06	543	.	G	C	.	.	.	GT	0/0	1/1	1/1	0/0	0/0
+RF06	668	.	A	G	.	.	.	GT	0/0	0/0	0/0	0/0	1/1
+RF06	695	.	T	C	.	.	.	GT	0/0	0/0	0/0	0/1	0/0
+RF06	1129	.	ATTT	AT	.	.	.	GT	0/0	0/0	0/0	1/1	0/0
+RF07	98	.	G	T	.	.	.	GT	0/0	0/1	0/1	0/0	0/0
+RF07	225	.	C	A	.	.	.	GT	0/0	1/1	1/1	0/0	0/0
+RF07	684	.	T	G	.	.	.	GT	0/0	0/0	0/0	1/1	0/0
+RF07	952	.	A	G	.	.	.	GT	0/0	0/0	0/0	0/0	1/1
+RF08	926	.	A	C	.	.	.	GT	0/0	0/0	0/0	0/0	1/1
+RF08	992	.	G	C	.	.	.	GT	0/0	1/1	1/1	0/0	0/0
+RF09	294	.	T	C	.	.	.	GT	0/1	0/0	0/0	0/0	0/0
+RF09	317	.	C	A	.	.	.	GT	0/0	0/0	0/0	0/0	1/1
+RF09	414	.	T	A	.	.	.	GT	0/0	0/1	0/1	0/0	0/0
+RF10	46	.	A	G	.	.	.	GT	1/1	0/0	0/0	0/0	0/0
+RF10	139	.	T	A	.	.	.	GT	0/0	0/0	0/0	1/1	0/0
+RF10	175	.	C	G	.	.	.	GT	0/0	0/0	0/0	0/1	0/0
+RF11	74	.	C	C	.	.	.	GT	0/0	0/0	0/0	0/1	0/0
+RF11	75	.	C	C	.	.	.	GT	1/0	1/0	0/1	0/1	1/0
+RF11	76	.	C	C	.	.	.	GT	1/1	1/1	1|1	1|1	1/1
