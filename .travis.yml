@@ -10,5 +10,4 @@ before_install:
    - sudo apt-get install flex bison git
 
 script:
-	- git clone "https://github.com/samtools/htslib.git" && cd htslib && make lib-shared
-    - make bcfselectgt test HTSLIB=htslib
+	- git clone "https://github.com/samtools/htslib.git" && (cd htslib && make lib-shared) && make bcfselectgt test HTSLIB=htslib
