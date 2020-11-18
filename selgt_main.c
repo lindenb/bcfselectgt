@@ -107,13 +107,15 @@ void IntArrayFree(IntArrayPtr ptr) {
 
 static void usage(const char* name,FILE* out) {
     fprintf(out,"%s: Compiled %s %s. Pierre Lindenbaum\n",name,__DATE__,__TIME__);
-    fprintf(out,"Usage: %s [ -O (o|v|z) ] [-o fileout] -e <expression> (stdin|bcf)\n",name);
+    fprintf(out,"version: %s\n", BCF_SELECT_GT_VERSION);
+    fprintf(out,"htslib: %s\n",hts_version());
+    fprintf(out,"Usage: %s [ -O (o|v|z) ] [ -f <FILTER> ] [-o fileout] -e <expression> (stdin|bcf|vcf)\n",name);
     fprintf(out,"Options:\n");
     fprintf(out,"  -h print help\n");
     fprintf(out,"  -f (string) soft FILTER name.\n");
     fprintf(out,"  -e (string) expression. See manual. Required.\n");
     fprintf(out,"  -o (file) output file (default stdout)\n");
-    fprintf(out,"  -O (char) output format z:gzip vcf v:vcf b:bcf (default v)\n");
+    fprintf(out,"  -O (char) output format z:bgzip v:vcf b:bcf (default v)\n");
     fprintf(out,"\n");
     }
     

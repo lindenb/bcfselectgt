@@ -1,8 +1,9 @@
 HTSLIB?=../htslib
-$(warning INFO: compiling using $$HTSLIB=$(HTSLIB))
+$(warning INFO: compiling using $$HTSLIB=$(HTSLIB) . Otherwise compile using 'make HTSLIB=/path/to/compiled/htslib')
 CC?=gcc
+
 CFLAGS= -O2 -Wall -c -I$(HTSLIB) -Wall
-LDFLAGS= -L$(HTSLIB) 
+LDFLAGS= -L$(HTSLIB)
 .PHONY=test
 
 	

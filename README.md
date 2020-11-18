@@ -2,6 +2,26 @@
 
 Bcf genotypes filtering using htslib
 
+[![Build Status](https://travis-ci.org/lindenb/bcfselectgt.svg)](https://travis-ci.org/lindenb/bcfselectgt)
+
+![Last commit](https://img.shields.io/github/last-commit/lindenb/bcfselectgt.png)
+
+
+## Usage: 
+
+
+./bcfselectgt [ -O (o|v|z) ] [ -f <FILTER> ] [-o fileout] -e <expression> (stdin|bcf|vcf)
+
+## Options:
+
+```
+  -h print help
+  -f (string) soft FILTER name.
+  -e (string) expression. See manual. Required.
+  -o (file) output file (default stdout)
+  -O (char) output format z:gzip u:uncompressed bcf v:vcf b:bcf (default v)
+```
+
 ## Installation
 
 Requirements:
