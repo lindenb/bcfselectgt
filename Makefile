@@ -1,4 +1,5 @@
 HTSLIB?=../htslib
+$(warning INFO: compiling using $$HTSLIB=$(HTSLIB))
 CC?=gcc
 CFLAGS= -O2 -Wall -c -I$(HTSLIB) -Wall
 LDFLAGS= -L$(HTSLIB) 
@@ -27,21 +28,21 @@ selgt.tab.h: selgt.tab.c
 selgt.tab.c :selgt.y selgt.h
 	bison --xml=bison.xml --verbose --report-file=bison.report.txt --output=$@ -d $<
 
-
-test: bcfselectgt rotavirus_rf.vcf.gz
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S1" == HET' $(word 2,$^)
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S1" != HET' $(word 2,$^)
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '[ "S1" "S2"] != HET' $(word 2,$^)
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '[ "S1" "S2"] != HET|HOM_VAR' $(word 2,$^)
+RUNIT=LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt
+test: bcfselectgt rotavirus_rf.vcf
+	$(RUNIT) -e '"S1" == HET' $(word 2,$^)
+	$(RUNIT) -e '"S1" != HET' $(word 2,$^)
+	$(RUNIT) -e '[ "S1" "S2"] != HET' $(word 2,$^)
+	$(RUNIT) -e '[ "S1" "S2"] != HET|HOM_VAR' $(word 2,$^)
 	echo  "S1,S2,S3" | tr "," "\n" > test.samples
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '@test.samples == HOM_REF' $(word 2,$^)
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '^ @test.samples == HOM_REF' $(word 2,$^)
+	$(RUNIT) -e '@test.samples == HOM_REF' $(word 2,$^)
+	$(RUNIT) -e '^ @test.samples == HOM_REF' $(word 2,$^)
 	rm test.samples
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S3" == HET && "S4" == HET' $(word 2,$^)
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S3" == HET || "S4" == HET' $(word 2,$^)
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '!("S3" == HET || "S4" == HET)' $(word 2,$^)
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '/^S[12]$$/ == HOM_REF' $(word 2,$^)
-	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '^ /^S[12]$$/ == HOM_REF' $(word 2,$^)
+	$(RUNIT) -e '"S3" == HET && "S4" == HET' $(word 2,$^)
+	$(RUNIT) -e '"S3" == HET || "S4" == HET' $(word 2,$^)
+	$(RUNIT) -e '!("S3" == HET || "S4" == HET)' $(word 2,$^)
+	$(RUNIT) -e '/^S[12]$$/ == HOM_REF' $(word 2,$^)
+	$(RUNIT) -e '^ /^S[12]$$/ == HOM_REF' $(word 2,$^)
 
 clean:
 	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt test.samples bison.xml bison.report.txt 
