@@ -32,6 +32,7 @@ selgt.tab.c :selgt.y selgt.h
 RUNIT=LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt
 test: bcfselectgt rotavirus_rf.vcf
 	$(RUNIT) -e '"S1" == HET' $(word 2,$^)
+	$(RUNIT) -F FILTERME -e '"S1" == HET' $(word 2,$^)
 	$(RUNIT) -e '"S1" != HET' $(word 2,$^)
 	$(RUNIT) -e '[ "S1" "S2"] != HET' $(word 2,$^)
 	$(RUNIT) -e '[ "S1" "S2"] != HET|HOM_VAR' $(word 2,$^)
@@ -46,7 +47,12 @@ test: bcfselectgt rotavirus_rf.vcf
 	$(RUNIT) -e '^ /^S[12]$$/ == HOM_REF' $(word 2,$^)
 	$(RUNIT) -e '* == HOM_REF' $(word 2,$^)
 	$(RUNIT) -e '* == HOM_VAR > 25%' $(word 2,$^)
-
+	echo '[ "S1" "S2"] != HET' > test.script
+	$(RUNIT) -f test.script $(word 2,$^)
+	rm test.script
+	cat $(word 2,$^) | $(RUNIT) -e '"S1" == HOM_VAR'
+	cat $(word 2,$^) | $(RUNIT) -O z -e '"S1" == HOM_VAR' | gunzip -c
+	
 clean:
-	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt test.samples bison.xml bison.report.txt 
+	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt test.samples bison.xml bison.report.txt  test.script
 

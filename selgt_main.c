@@ -24,6 +24,7 @@ SOFTWARE.
 */
 #include <getopt.h>
 #include <unistd.h>
+#include <ctype.h>
 #include "selgt.h"
 #include "selgt.tab.h"
 #include "lex.yy.h"
@@ -157,11 +158,12 @@ static void usage(const char* name,FILE* out) {
     fprintf(out,"%s: Compiled %s %s. Pierre Lindenbaum\n",name,__DATE__,__TIME__);
     fprintf(out,"version: %s\n", BCF_SELECT_GT_VERSION);
     fprintf(out,"htslib: %s\n",hts_version());
-    fprintf(out,"Usage: %s [ -O (o|v|z) ] [ -f <FILTER> ] [-o fileout] -e <expression> (stdin|bcf|vcf)\n",name);
+    fprintf(out,"Usage: %s [ -O (o|v|z) ] [ -F <FILTER> ] [-o fileout] (-e <expression> | -f <file> ) (stdin|bcf|vcf)\n",name);
     fprintf(out,"Options:\n");
     fprintf(out,"  -h print help\n");
-    fprintf(out,"  -f (string) soft FILTER name.\n");
-    fprintf(out,"  -e (string) expression. See manual. Required.\n");
+    fprintf(out,"  -F (string) soft FILTER name. (default: filter out variants)\n");
+    fprintf(out,"  -e (string) expression. See manual. Required or use -f.\n");
+    fprintf(out,"  -f (file) script file. See manual. Required or use -e.\n");
     fprintf(out,"  -o (file) output file (default stdout)\n");
     fprintf(out,"  -O (char) output format z:bgzip v:vcf b:bcf (default v)\n");
     fprintf(out,"\n");
@@ -172,14 +174,18 @@ int main(int argc,char** argv) {
  int ret=0;
  int i;
  int filter_id=-1;
+ char* script_file = NULL;
  char* filter=NULL;
  char* fileout=NULL;
  char format[3]={'v','w',0};
  char* user_expr_str = NULL;
- while ((c = getopt (argc, argv, "o:O:e:f:h")) != -1)
+ while ((c = getopt (argc, argv, "o:O:e:F:f:h")) != -1)
     switch (c)
       {
-      case 'f': filter=optarg; 
+      case 'f':
+      	script_file = optarg;
+      	break;
+      case 'F': filter=optarg; 
       	if(strlen(filter)==0) ERROR("empty filter name");
       	break;
       case 'O':
@@ -202,10 +208,36 @@ int main(int argc,char** argv) {
           ERROR("Argument error.");
           return EXIT_FAILURE;
       }
-     
-if( user_expr_str ==NULL) {
-    ERROR("expression is missing");
+
+if( user_expr_str !=NULL &&  script_file !=NULL) {
+    ERROR("both option -e and -f were used");
     return EXIT_FAILURE;    
+	}
+else if( user_expr_str ==NULL &&  script_file ==NULL ) {
+    ERROR("expression (or script file) is missing");
+    return EXIT_FAILURE;    
+	}
+else if(script_file!=NULL)
+	{
+	FILE * fp = fopen (script_file, "rb");
+	if(fp==NULL) ERROR("Cannot open script file %s (%s)",script_file,strerror(errno));
+	fseek (fp, 0, SEEK_END);
+	long length = ftell (fp);
+	fseek (fp, 0, SEEK_SET);
+	user_expr_str  = (char*)malloc (length+1);
+	if(user_expr_str==NULL) ERROR("Cannot read script file");
+	if( (long)fread (user_expr_str, sizeof(char), length, fp) != length) {
+		ERROR("Cannot read script file");
+		}
+	fclose (fp);
+	user_expr_str[length]=0;
+	}
+	
+//cleanup script
+i=0;
+while(user_expr_str[i]!=0) {
+	if(isspace(user_expr_str[i])) user_expr_str[i]=' ';
+	i++;
 	}
 	
 if(!(optind==argc || optind+1==argc)) {

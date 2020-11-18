@@ -9,15 +9,17 @@ VCF/BCF genotypes filtering using htslib
 
 ## Usage: 
 
-
-./bcfselectgt [ -O (o|v|z) ] [ -f <FILTER> ] [-o fileout] -e <expression> (stdin|bcf|vcf)
+```
+./bcfselectgt [ -O (o|v|z) ] [ -F <FILTER> ] [-o fileout] (-e <expression>|-f <file>)  (stdin|bcf|vcf)
+```
 
 ## Options:
 
 ```
   -h print help
-  -f (string) soft FILTER name.
-  -e (string) expression. See manual. Required.
+  -F (string) soft FILTER name (default: filter out variants).
+  -e (string) expression. See manual. Required or use '-f'.
+  -f (file) script file. See manual. Required or use '-e'
   -o (file) output file (default stdout)
   -O (char) output format z:gzip v:vcf b:bcf (default v)
 ```
