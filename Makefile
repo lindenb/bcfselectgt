@@ -28,7 +28,7 @@ selgt.tab.c :selgt.y selgt.h
 	bison --xml=bison.xml --verbose --report-file=bison.report.txt --output=$@ -d $<
 
 
-test: bcfselectgt rotavirus_rf.vcf.gz
+test: bcfselectgt rotavirus_rf.vcf
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S1" == HET' $(word 2,$^)
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '"S1" != HET' $(word 2,$^)
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '[ "S1" "S2"] != HET' $(word 2,$^)
@@ -42,6 +42,7 @@ test: bcfselectgt rotavirus_rf.vcf.gz
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '!("S3" == HET || "S4" == HET)' $(word 2,$^)
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '/^S[12]$$/ == HOM_REF' $(word 2,$^)
 	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '^ /^S[12]$$/ == HOM_REF' $(word 2,$^)
+	LD_LIBRARY_PATH=${ LD_LIBRARY_PATH}:$(HTSLIB) ./bcfselectgt -e '* == HOM_REF' $(word 2,$^)
 
 clean:
 	rm selgt.tab.h selgt.tab.c lex.yy.h lex.yy.c *.o bcfselectgt test.samples bison.xml bison.report.txt 
