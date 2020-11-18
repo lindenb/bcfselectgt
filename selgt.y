@@ -81,33 +81,14 @@ void yyerror (char const *s) {
 %type<d> opt_caret gt_type eqorne cmpop 
 %type<float_or_int> samplecount
 
-%left LEX_AND
-%left LEX_NOT
 %%
 
-input: and_expr {
+input: or_expr {
 	g_node =  $1;
 	};
 
 
-
-and_expr: or_expr {$$=$1;} | and_expr  LEX_AND  or_expr {
-	assert($1!=NULL);
-	assert($3!=NULL);
-	$$ = NodeNew();
-	$$->type = NODE_TYPE_AND;
-	$$->left = $1;
-	$$->right = $3;
-	} | '(' and_expr ')' {
-	$$ = $2;
-	}  | LEX_NOT and_expr {
-	$$ = NodeNew();
-	$$->type = NODE_TYPE_NOT;
-	$$->left = $2;
-	};
-
-
-or_expr: boolean_expr {$$=$1;} | or_expr  LEX_OR boolean_expr {
+or_expr: and_expr {$$=$1;} | or_expr  LEX_OR and_expr {
 	assert($1!=NULL);
 	assert($3!=NULL);
 	$$ = NodeNew();
@@ -116,11 +97,29 @@ or_expr: boolean_expr {$$=$1;} | or_expr  LEX_OR boolean_expr {
 	$$->right = $3;
 	};
 
+
+and_expr: boolean_expr {$$=$1;} | and_expr  LEX_AND  boolean_expr {
+	assert($1!=NULL);
+	assert($3!=NULL);
+	$$ = NodeNew();
+	$$->type = NODE_TYPE_AND;
+	$$->left = $1;
+	$$->right = $3;
+	};
+
+
 boolean_expr: sample_check {
 	$$ = NodeNew();
 	$$->type = NODE_TYPE_COMPARE;
 	$$->check = $1;
+	} | '(' or_expr ')' {
+	$$ = $2;
+	}  | LEX_NOT or_expr {
+	$$ = NodeNew();
+	$$->type = NODE_TYPE_NOT;
+	$$->left = $2;
 	};
+;
 
 sample_check: sample_check0 {
 	$$ = $1;
