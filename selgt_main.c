@@ -79,11 +79,35 @@ static int eval_variant(IntArrayPtr gts,NodePtr node) {
 	return 0;
 	}
 
+void NodeFree(NodePtr node) {
+	if(node==NULL) return;
+	switch(node->type) {
+		case NODE_TYPE_COMPARE:
+			CheckGtFree(node->check);
+			break;
+		case NODE_TYPE_AND: case NODE_TYPE_OR:
+			NodeFree(node->left);
+			NodeFree(node->right);
+			break;
+		case NODE_TYPE_NOT:
+			NodeFree(node->left);
+			break;
+		}
+	free((void*)node);
+	}
+
 CheckGtPtr CheckGtNew() {
 	CheckGtPtr ptr = (CheckGtPtr)malloc(sizeof(CheckGt));
 	if(ptr==NULL) ERROR("out of memory");
 	memset((void*)ptr,0,sizeof(CheckGt));
 	return ptr;
+	}
+
+void CheckGtFree(CheckGtPtr ptr) {
+	if(ptr==NULL) return;
+	IntArrayFree(ptr->samples);
+	IntArrayFree(ptr->gtypes);
+	free((void*)ptr);
 	}
 
 NodePtr NodeNew() {
@@ -289,6 +313,7 @@ bcf_destroy(bcf);
 bcf_hdr_destroy(header);
 hts_close(in);
 hts_close(out);
+NodeFree(g_node);
 free(user_expr_str);
   return EXIT_SUCCESS;
 }

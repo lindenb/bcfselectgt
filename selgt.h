@@ -73,6 +73,7 @@ typedef struct checkgt_t {
 	} CheckGt,*CheckGtPtr;
 
 CheckGtPtr CheckGtNew();
+void CheckGtFree(CheckGtPtr ptr);
 
 typedef struct node_t {
 	int type;
@@ -83,7 +84,7 @@ typedef struct node_t {
 
 
 NodePtr NodeNew();
-
+void NodeFree(NodePtr ptr);
 
 #define NODE_TYPE_COMPARE 0
 #define NODE_TYPE_AND 1
