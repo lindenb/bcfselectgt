@@ -6,6 +6,7 @@
 #include <htslib/hts.h>
 #include <htslib/vcf.h>
 #include <htslib/vcfutils.h>
+#define BCF_SELECT_GT_VERSION "0.1.0"
 
 #define WHERE do {fprintf(stderr,"[%s:%d]",__FILE__,__LINE__);} while(0)
 #define WARNING(...) do { fputs("[WARNING]",stderr);WHERE;fprintf(stderr,__VA_ARGS__);fputc('\n',stderr);} while(0)
@@ -26,6 +27,18 @@ void IntArrayFree(IntArrayPtr ptr);
 #define IntArraySize(ptr) ((ptr)->size)
 #define IntArrayAt(ptr,idx) ((ptr)->data[idx])
 
+
+#define TYPE_IS_INT 0
+#define TYPE_IS_FLOAT 1
+typedef struct float_or_int_t {
+	int type;
+	union {
+		int d;
+		double f;
+		} data;
+	} FloatOrInt;
+
+
 typedef struct checkgt_t {
 	int negate;
 	int cmp_operator;
@@ -45,6 +58,7 @@ typedef struct node_t {
 
 
 NodePtr NodeNew();
+
 
 #define NODE_TYPE_COMPARE 0
 #define NODE_TYPE_AND 1

@@ -28,6 +28,7 @@ void yyerror (char const *s) {
     IntArrayPtr gt_types;
     CheckGtPtr checkGt;
     NodePtr node;
+    FloatOrInt float_or_int;
 	int d;
 	float f;
 	};
@@ -52,7 +53,8 @@ void yyerror (char const *s) {
 %type<gt_types>  gt_type_set
 %type<checkGt> sample_check0 sample_check
 %type<node> boolean_expr and_expr or_expr
-%type<d> opt_caret gt_type eqorne cmpop samplecount
+%type<d> opt_caret gt_type eqorne cmpop 
+%type<float_or_int> samplecount
 
 %left LEX_AND
 %left LEX_NOT
@@ -97,19 +99,27 @@ boolean_expr: sample_check {
 
 sample_check: sample_check0 {
 	$$ = $1;
-	$1->cmp_operator = LEX_EQ;
-	$1->expect_n_samples = $$->samples->size;
+	$$->cmp_operator = LEX_EQ;
+	$$->expect_n_samples = IntArraySize($$->samples);
 	} | sample_check0 cmpop samplecount {
+	int expect_n_samples;
 	$$ = $1;
 	$1->cmp_operator = $2;
-	$1->expect_n_samples = $3;
-	if($3<0) {
-		ERROR("Sample count cannot be lower than 0 (%d)",$3);
+	if( $3.type == TYPE_IS_INT ) {
+		expect_n_samples = $3.data.d;
 		}
-	if($3>(int)bcf_hdr_nsamples(g_header)) {
-		ERROR("Sample count (%d)cannot be greater than the number of samples in the vcf (%d) ",
-			$3,(int)bcf_hdr_nsamples(g_header));
+	else
+		{
+		expect_n_samples = (int)($3.data.f * IntArraySize($1->samples) );
 		}
+	if(expect_n_samples<0) {
+		ERROR("Sample count cannot be lower than 0 (%d)",expect_n_samples);
+		}
+	if(expect_n_samples> IntArraySize($1->samples)) {
+		ERROR("Sample count (%d)cannot be greater than the number of samples in the group (%d) ",
+			expect_n_samples,IntArraySize($1->samples));
+		}
+	$$->expect_n_samples = expect_n_samples;
 	};
 
 sample_check0 : sample_set eqorne gt_type_set {
@@ -119,10 +129,14 @@ sample_check0 : sample_set eqorne gt_type_set {
 	$$->gtypes = $3;
 	};
 
-samplecount: LEX_INT {$$=$1;}|
+samplecount: LEX_INT {
+	$$.type=TYPE_IS_INT;
+	$$.data.d = $1;
+	}|
 	LEX_FLOAT {
 	if($1<0.0 || $1>1.0) ERROR("Bad fraction of samples value 0<=%f<=1.0.",$1);
-	$$=(int)($1*((int)bcf_hdr_nsamples(g_header)));
+	$$.type=TYPE_IS_FLOAT;
+	$$.data.f = $1;
 	}
 	;
 

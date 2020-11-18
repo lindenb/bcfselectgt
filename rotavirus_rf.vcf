@@ -1,5 +1,4 @@
 ##fileformat=VCFv4.2
-##FILTER=<ID=PASS,Description="All filters passed">
 ##contig=<ID=RF01,length=3302>
 ##contig=<ID=RF02,length=2687>
 ##contig=<ID=RF03,length=2592>
@@ -12,8 +11,6 @@
 ##contig=<ID=RF10,length=751>
 ##contig=<ID=RF11,length=666>
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-##bcftools_viewVersion=1.10-6-g2782d9f+htslib-1.2.1-1336-g7c16b56-dirty
-##bcftools_viewCommand=view -O z -o rotavirus_rf.vcf.gz jeter.vcf; Date=Fri Nov  6 16:08:31 2020
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	S1	S2	S3	S4	S5
 RF01	970	.	A	C	.	.	.	GT	0/0	0/0	0/0	0/0	1/1
 RF02	251	.	A	T	.	.	.	GT	0/0	0/1	0/1	0/0	0/0
@@ -60,5 +57,7 @@ RF10	46	.	A	G	.	.	.	GT	1/1	0/0	0/0	0/0	0/0
 RF10	139	.	T	A	.	.	.	GT	0/0	0/0	0/0	1/1	0/0
 RF10	175	.	C	G	.	.	.	GT	0/0	0/0	0/0	0/1	0/0
 RF11	74	.	C	C	.	.	.	GT	0/0	0/0	0/0	0/1	0/0
-RF11	75	.	C	C	.	.	.	GT	1/0	1/0	0/1	0/1	1/0
-RF11	76	.	C	C	.	.	.	GT	1/1	1/1	1|1	1|1	1/1
+RF11	75	.	C	G	.	.	.	GT	1/0	1/0	0/1	0/1	1/0
+RF11	76	.	C	G	.	.	.	GT	1/1	1/1	1|1	1|1	1/1
+RF11	77	.	C	G	.	.	.	GT	0/0	0/0	0|0	0|0	0/0
+RF11	78	.	C	G	.	.	.	GT	./.	./.	.|.	.|.	./.

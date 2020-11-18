@@ -26,8 +26,10 @@ static int eval_variant(IntArrayPtr gts,NodePtr node) {
 	int matching=0;
 	assert(gts!=NULL);
 	assert(node!=NULL);
+	
 	switch(node->type) {
 		case NODE_TYPE_COMPARE:
+				{
 				for(i=0; i< IntArraySize(node->check->samples);i++) {
 					int sample_index=  IntArrayAt(node->check->samples,i);
 					int sample_gt= IntArrayAt(gts,sample_index);
@@ -40,7 +42,8 @@ static int eval_variant(IntArrayPtr gts,NodePtr node) {
 						matching++;	
 						}
 					}
-			return int_compare(matching, node->check->cmp_operator,node->check->expect_n_samples);
+				return int_compare(matching, node->check->cmp_operator,node->check->expect_n_samples);
+				}
 		case NODE_TYPE_AND:
 			return eval_variant(gts,node->left) && eval_variant(gts,node->right);
 		case NODE_TYPE_OR:
@@ -192,7 +195,7 @@ if(out==NULL) {
     return EXIT_FAILURE;    
     }
 kstring_t xheader = {0,0,0};
-ksprintf(&xheader, "##gtselect.command=%s\n",user_expr_str);
+ksprintf(&xheader, "##gtselect.command=%s (version:%s)\n",user_expr_str,BCF_SELECT_GT_VERSION);
 bcf_hdr_append(header, xheader.s);
 free(xheader.s);
 
