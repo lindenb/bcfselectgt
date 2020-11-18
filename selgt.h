@@ -32,7 +32,7 @@ SOFTWARE.
 #include <htslib/hts.h>
 #include <htslib/vcf.h>
 #include <htslib/vcfutils.h>
-#define BCF_SELECT_GT_VERSION "0.1.0"
+#define BCF_SELECT_GT_VERSION "0.1.1"
 
 #define WHERE do {fprintf(stderr,"[%s:%d]",__FILE__,__LINE__);} while(0)
 #define WARNING(...) do { fputs("[WARNING]",stderr);WHERE;fprintf(stderr,__VA_ARGS__);fputc('\n',stderr);} while(0)
